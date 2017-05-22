@@ -26,25 +26,25 @@ public class PT_IMSPC{
         File srcFile = new File(srcFilePath);
 
       if(! srcFile.exists()){
-        System.out.println("Arquivo " + srcFilePath + " não existe.");
+        System.out.println("Arquivo " + srcFilePath + ".java não existe em " + testingPath);
         return;
-      }else
-        System.out.println("Arquivo " + srcFilePath + " encontrado.");
-
+      }
 
       walk(srcFile);
 
   }
   public static void walk(File inputFile){
-    ParseTree fileTree = getTree(inputFile);
+    CommonTokenStream tokens = getTokenStreamFromFile(inputFile);
+    ParseTree parseTree = getParseTreeFromTokenStream(tokens);
+
     Visitor forrest = new Visitor();
-    Program prog = (Program)forrest.visit(fileTree);
+    Program prog = (Program)forrest.visit(parseTree);
 
     prog.accept(
       new PrettyPrintVisitor()
     );
   }
-  public static ParseTree getTree(File inputFile){
+  public static CommonTokenStream getTokenStreamFromFile(File inputFile){
     String fileContents = "";
     try{
       fileContents = getFileContents(inputFile);
@@ -58,6 +58,11 @@ public class PT_IMSPC{
       )
     );
     CommonTokenStream tokens = new CommonTokenStream(lexLuthor);
+
+    return tokens;
+  }
+  public static ParseTree getParseTreeFromTokenStream(CommonTokenStream tokens){
+
     PT_IMSPCParser parser = new PT_IMSPCParser(tokens);
 
     ParseTree ctx = parser.goal();
