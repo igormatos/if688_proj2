@@ -30,10 +30,10 @@ public class PT_IMSPC{
         return;
       }
 
-      walk(srcFile);
+      processFile(srcFile);
 
   }
-  public static void walk(File inputFile){
+  public static void processFile(File inputFile){
     CommonTokenStream tokens = getTokenStreamFromFile(inputFile);
     ParseTree parseTree = getParseTreeFromTokenStream(tokens);
 
