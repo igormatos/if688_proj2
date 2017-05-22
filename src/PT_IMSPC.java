@@ -1,6 +1,7 @@
 import antlr.*;
 import ast.*;
 import visitor.*;
+import symboltable.*;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -30,6 +31,9 @@ public class PT_IMSPC{
       System.out.println(e.getMessage());
     }
   }
+
+  /***************************************************************************/
+
   public static String getSrcFileArg(String[] args) throws Exception{
     if(args.length < 1)
       throw new Exception("Argumento faltando: Arquivo de entrada.");
@@ -48,16 +52,20 @@ public class PT_IMSPC{
     return srcFile;
   }
   public static void processFile(File inputFile) throws Exception{
+    // Analise Lexica
     CommonTokenStream tokens = getTokenStreamFromFile(inputFile);
+    // Analise Sintatica
     ParseTree parseTree = getParseTreeFromTokenStream(tokens);
+    // AST (raiz de uma arvore sintatica, estrutura intermediaria)
+    Program ast = getAstFromParseTree(parseTree);
+    // Tabela de Simbolos
+    SymbolTable symbols = getSymbolTableFromAST(ast);
 
-    Visitor forrest = new Visitor();
-    Program prog = (Program)forrest.visit(parseTree);
-
-    prog.accept(
-      new PrettyPrintVisitor()
-    );
+    prettyPrintAst(ast);
   }
+
+  /***************************************************************************/
+
   public static CommonTokenStream getTokenStreamFromFile(File inputFile){
     String fileContents = "";
     try{
@@ -88,9 +96,33 @@ public class PT_IMSPC{
 
     return new String(encoded);
   }
+  public static Program getAstFromParseTree(ParseTree parseTree){
+    BuildProgramVisitor forrest = new BuildProgramVisitor();
+    Program prog = (Program)forrest.visit(parseTree);
+
+    return prog;
+  }
+  public static SymbolTable getSymbolTableFromAST(Program ast){
+    BuildSymbolTableVisitor tableBuilder = new BuildSymbolTableVisitor();
+    tableBuilder.visit(ast);
+    SymbolTable symbolTable = tableBuilder.getSymbolTable();
+
+    return symbolTable;
+  }
+
+  /**************************************************************************/
+
+  public static void prettyPrintAst(Program ast){
+    ast.accept(
+      new PrettyPrintVisitor()
+    );
+  }
+
+  /***************************************************************************/
+
 }
 
-class Visitor extends PT_IMSPCBaseVisitor<Object>{
+class BuildProgramVisitor extends PT_IMSPCBaseVisitor<Object>{
 
 	public Object visitGoal(PT_IMSPCParser.GoalContext ctx) {
 		System.out.println("Visitou goal");
