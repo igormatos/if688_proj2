@@ -12,28 +12,42 @@ import java.nio.file.Files;
 
 
 public class PT_IMSPC{
+
   static String testingPath = "../testing";
+  static String srcFilePath = "";
 
   public static void main(String[] args){
-    String srcFilePath = "";
+    try{
 
-      if(args.length < 1)
-      {
-        System.out.println("Argumento faltando: arquivo de entrada.");
-        return;
-      }
-        srcFilePath = testingPath + "/" + args[0] + ".java";
-        File srcFile = new File(srcFilePath);
 
-      if(! srcFile.exists()){
-        System.out.println("Arquivo " + srcFilePath + ".java não existe em " + testingPath);
-        return;
-      }
+      processFile(
+        getSrcFile(
+          getSrcFileArg(args)
+        )
+      );
 
-      processFile(srcFile);
-
+    }catch(Exception e){
+      System.out.println(e.getMessage());
+    }
   }
-  public static void processFile(File inputFile){
+  public static String getSrcFileArg(String[] args) throws Exception{
+    if(args.length < 1)
+      throw new Exception("Argumento faltando: Arquivo de entrada.");
+
+    return args[0];
+  }
+  public static File getSrcFile(String arg) throws Exception{
+
+      srcFilePath = testingPath + "/" + arg + ".java";
+      File srcFile = new File(srcFilePath);
+
+    if(! srcFile.exists())
+      throw new Exception("Arquivo " + srcFilePath + " não existe.");
+
+
+    return srcFile;
+  }
+  public static void processFile(File inputFile) throws Exception{
     CommonTokenStream tokens = getTokenStreamFromFile(inputFile);
     ParseTree parseTree = getParseTreeFromTokenStream(tokens);
 
