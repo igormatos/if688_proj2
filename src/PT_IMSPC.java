@@ -83,6 +83,11 @@ public class PT_IMSPC{
 
     return tokens;
   }
+  public static String getFileContents(File file) throws IOException{
+    byte[] encoded = encoded = Files.readAllBytes(file.toPath());
+
+    return new String(encoded);
+  }
   public static ParseTree getParseTreeFromTokenStream(CommonTokenStream tokens){
 
     PT_IMSPCParser parser = new PT_IMSPCParser(tokens);
@@ -90,11 +95,6 @@ public class PT_IMSPC{
     ParseTree ctx = parser.goal();
 
     return ctx;
-  }
-  public static String getFileContents(File file) throws IOException{
-    byte[] encoded = encoded = Files.readAllBytes(file.toPath());
-
-    return new String(encoded);
   }
   public static Program getAstFromParseTree(ParseTree parseTree){
     BuildProgramVisitor forrest = new BuildProgramVisitor();
