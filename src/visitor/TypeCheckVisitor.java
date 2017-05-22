@@ -41,13 +41,14 @@ public class TypeCheckVisitor implements TypeVisitor {
 
 	private SymbolTable symbolTable;
 
-	TypeCheckVisitor(SymbolTable st) {
+	public TypeCheckVisitor(SymbolTable st) {
 		symbolTable = st;
 	}
 
 	// MainClass m;
 	// ClassDeclList cl;
 	public Type visit(Program n) {
+		
 		n.m.accept(this);
 		for (int i = 0; i < n.cl.size(); i++) {
 			n.cl.elementAt(i).accept(this);

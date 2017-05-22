@@ -6,7 +6,7 @@ import java.util.Hashtable;
 import ast.IdentifierType;
 import ast.Type;
 
-public class Class {
+public class Class implements IScope{
 
 	String id;
 	Hashtable<Object, Method> methods;
@@ -33,11 +33,11 @@ public class Class {
 		return type;
 	}
 
-	public boolean addMethod(String id, Type type) {
-		if (containsMethod(id))
+	public boolean addMethod(Method m) {
+		if (containsMethod(m.getId()))
 			return false;
 		else {
-			methods.put(id, new Method(id, type));
+			methods.put(m.getId(), m);
 			return true;
 		}
 	}

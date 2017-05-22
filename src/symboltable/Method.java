@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import ast.Type;
 
-public class Method {
+public class Method implements IScope{
 
 	String id;
 	Type type;

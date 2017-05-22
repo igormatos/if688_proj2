@@ -1,21 +1,26 @@
+
 import antlr.*;
 import ast.*;
-import visitor.*;
-import symboltable.*;
-
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.ParseTree;
-import java.util.List;
-import java.util.ArrayList;
 import java.io.*;
 import java.nio.file.Files;
-
-
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.ParseTree;
+import symboltable.Class;
+import symboltable.Method;
+import symboltable.SymbolTable;
+import symboltable.Variable;
+import symboltable.IScope;
+import visitor.*;
 
 public class PT_IMSPC{
-
   static String testingPath = "../testing";
   static String srcFilePath = "";
+
+  static SymbolTable SYMBs = null;
+  static Program AST = null;
 
   public static void main(String[] args){
     try{
@@ -57,11 +62,14 @@ public class PT_IMSPC{
     // Analise Sintatica
     ParseTree parseTree = getParseTreeFromTokenStream(tokens);
     // AST (raiz de uma arvore sintatica, estrutura intermediaria)
-    Program ast = getAstFromParseTree(parseTree);
+    AST = getAstFromParseTree(parseTree);
     // Tabela de Simbolos
-    SymbolTable symbols = getSymbolTableFromAST(ast);
+    SYMBs = getSymbolTableFromAST();
+    // Checagem de tipos
 
-    prettyPrintAst(ast);
+
+    // prettyPrintAst(ast);
+    // prettyPrintTable(symbols);
   }
 
   /***************************************************************************/
@@ -102,20 +110,30 @@ public class PT_IMSPC{
 
     return prog;
   }
-  public static SymbolTable getSymbolTableFromAST(Program ast){
+  public static SymbolTable getSymbolTableFromAST(){
     BuildSymbolTableVisitor tableBuilder = new BuildSymbolTableVisitor();
-    tableBuilder.visit(ast);
+    tableBuilder.visit(AST);
     SymbolTable symbolTable = tableBuilder.getSymbolTable();
 
     return symbolTable;
   }
+  public static TypeCheckVisitor checkTypes(){
+    TypeCheckVisitor typeChecker = new TypeCheckVisitor(SYMBs);
+    typeChecker.visit(AST);
 
+    return typeChecker;
+  }
   /**************************************************************************/
 
   public static void prettyPrintAst(Program ast){
+    System.out.println("AST");
     ast.accept(
       new PrettyPrintVisitor()
     );
+  }
+  public static void prettyPrintTable(SymbolTable tb){
+    System.out.println("SYMBOL TABLE");
+    System.out.println(tb.hashtable);
   }
 
   /***************************************************************************/
