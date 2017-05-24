@@ -14,8 +14,7 @@ public class MainClass {
     v.visit(this);
   }
 
-  public Type accept(TypeVisitor v) {
+   public Type accept(TypeVisitor v) throws Exception     {
     return v.visit(this);
   }
 }
-

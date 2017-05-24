@@ -3,45 +3,16 @@ package visitor;
 import symboltable.SymbolTable;
 import symboltable.Class;
 import symboltable.Method;
+import symboltable.IScope;
 import symboltable.Variable;
-import ast.And;
-import ast.ArrayAssign;
-import ast.ArrayLength;
-import ast.ArrayLookup;
-import ast.Assign;
-import ast.Block;
-import ast.BooleanType;
-import ast.Call;
-import ast.ClassDeclExtends;
-import ast.ClassDeclSimple;
-import ast.False;
-import ast.Formal;
-import ast.Identifier;
-import ast.IdentifierExp;
-import ast.IdentifierType;
-import ast.If;
-import ast.IntArrayType;
-import ast.IntegerLiteral;
-import ast.IntegerType;
-import ast.LessThan;
-import ast.MainClass;
-import ast.MethodDecl;
-import ast.Minus;
-import ast.NewArray;
-import ast.NewObject;
-import ast.Not;
-import ast.Plus;
-import ast.Print;
-import ast.Program;
-import ast.This;
-import ast.Times;
-import ast.True;
-import ast.VarDecl;
-import ast.While;
+import ast.*;
 
 public class BuildSymbolTableVisitor implements Visitor {
 
 	SymbolTable symbolTable;
+
+	Class currClass;
+	Method currMethod;
 
 	public BuildSymbolTableVisitor() {
 		symbolTable = new SymbolTable();
@@ -50,9 +21,6 @@ public class BuildSymbolTableVisitor implements Visitor {
 	public SymbolTable getSymbolTable() {
 		return symbolTable;
 	}
-
-	private Class currClass;
-	private Method currMethod;
 
 	// MainClass m;
 	// ClassDeclList cl;
@@ -76,12 +44,19 @@ public class BuildSymbolTableVisitor implements Visitor {
 	// MethodDeclList ml;
 	public void visit(ClassDeclSimple n) {
 		n.i.accept(this);
+		System.out.println("\n\nclasse " + n.i.s + "{");
+		// ENTRA NA CLASSE
+		currClass = new Class(n.i.s, null);
+		symbolTable.addClass(currClass);
+
 		for (int i = 0; i < n.vl.size(); i++) {
 			n.vl.elementAt(i).accept(this);
 		}
 		for (int i = 0; i < n.ml.size(); i++) {
 			n.ml.elementAt(i).accept(this);
 		}
+		exitClass();
+		System.out.println("} classe " + n.i.s);
 	}
 
 	// Identifier i;
@@ -91,21 +66,44 @@ public class BuildSymbolTableVisitor implements Visitor {
 	public void visit(ClassDeclExtends n) {
 		n.i.accept(this);
 		n.j.accept(this);
+		System.out.println("\n\nclasse " + n.i.s + " extends " + n.j.s + "{");
+		// ENTRA NA CLASSE
+		currClass = new Class(n.i.s, n.j.s);
+		symbolTable.addClass(currClass);
+
 		for (int i = 0; i < n.vl.size(); i++) {
 			n.vl.elementAt(i).accept(this);
 		}
 		for (int i = 0; i < n.ml.size(); i++) {
 			n.ml.elementAt(i).accept(this);
 		}
+
+		exitClass();
+		System.out.println("} classe " + n.i.s + " extends " + n.j.s);
 	}
 
 	// Type t;
 	// Identifier i;
 	public void visit(VarDecl n) {
+		System.out.println(n.t.getName() + " " + n.i.s);
 		n.t.accept(this);
 		n.i.accept(this);
-	}
 
+		// decide escopo e insere
+		getScope().addVar(n.i.s, n.t);
+	}
+	protected IScope getScope(){
+		IScope scope;
+		if(inMethodScope())
+			scope = currMethod;
+		else
+			scope = currClass;
+
+			return scope;
+	}
+	protected boolean inMethodScope(){
+		return currMethod != null;
+	}
 	// Type t;
 	// Identifier i;
 	// FormalList fl;
@@ -115,6 +113,12 @@ public class BuildSymbolTableVisitor implements Visitor {
 	public void visit(MethodDecl n) {
 		n.t.accept(this);
 		n.i.accept(this);
+
+		// ENTRA NO METODO
+		System.out.println("\nmetodo " + n.t.getName() + " " + n.i.s + "{");
+		currMethod = new Method(n.i.s, n.t);
+		currClass.addMethod(currMethod);
+
 		for (int i = 0; i < n.fl.size(); i++) {
 			n.fl.elementAt(i).accept(this);
 		}
@@ -125,6 +129,16 @@ public class BuildSymbolTableVisitor implements Visitor {
 			n.sl.elementAt(i).accept(this);
 		}
 		n.e.accept(this);
+
+		// SAI DO METODO
+		exitMethod();
+		System.out.println("} metodo " + n.t.getName() + " " + n.i.s);
+	}
+	protected void exitMethod(){
+		currMethod = null;
+	}
+	protected void exitClass(){
+		currClass = null;
 	}
 
 	// Type t;
@@ -133,6 +147,10 @@ public class BuildSymbolTableVisitor implements Visitor {
 		n.t.accept(this);
 		n.i.accept(this);
 	}
+
+
+
+// PARA MONTAR A TABELA DE SIMBOLOS SEM VALORES NAO PRECISA VISITAR AS FOLHAS
 
 	public void visit(IntArrayType n) {
 	}
@@ -241,6 +259,8 @@ public class BuildSymbolTableVisitor implements Visitor {
 		}
 	}
 
+
+
 	// int i;
 	public void visit(IntegerLiteral n) {
 	}
@@ -274,5 +294,9 @@ public class BuildSymbolTableVisitor implements Visitor {
 
 	// String s;
 	public void visit(Identifier n) {
+	}
+
+	public void log(String msg){
+		System.out.println(">" + msg);
 	}
 }

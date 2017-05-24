@@ -13,7 +13,7 @@ public class Not extends Exp {
     v.visit(this);
   }
 
-  public Type accept(TypeVisitor v) {
+   public Type accept(TypeVisitor v) throws Exception  {
     return v.visit(this);
   }
 }

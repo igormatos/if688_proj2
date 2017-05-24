@@ -1,50 +1,85 @@
+
 import antlr.*;
 import ast.*;
-import visitor.*;
-
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.ParseTree;
-import java.util.List;
-import java.util.ArrayList;
 import java.io.*;
 import java.nio.file.Files;
-
-
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.ParseTree;
+import symboltable.Class;
+import symboltable.Method;
+import symboltable.SymbolTable;
+import symboltable.Variable;
+import symboltable.IScope;
+import visitor.*;
 
 public class PT_IMSPC{
   static String testingPath = "../testing";
+  static String srcFilePath = "";
+
+  static SymbolTable SYMBs = null;
+  static Program AST = null;
 
   public static void main(String[] args){
-    String srcFilePath = "";
-
-      if(args.length < 1)
-      {
-        System.out.println("Argumento faltando: arquivo de entrada.");
-        return;
-      }
-        srcFilePath = testingPath + "/" + args[0] + ".java";
-        File srcFile = new File(srcFilePath);
-
-      if(! srcFile.exists()){
-        System.out.println("Arquivo " + srcFilePath + " não existe.");
-        return;
-      }else
-        System.out.println("Arquivo " + srcFilePath + " encontrado.");
+    try{
 
 
-      walk(srcFile);
+      processFile(
+        getSrcFile(
+          getSrcFileArg(args)
+        )
+      );
 
+    }catch(Exception e){
+      System.out.println(e.getMessage());
+    }
   }
-  public static void walk(File inputFile){
-    ParseTree fileTree = getTree(inputFile);
-    Visitor forrest = new Visitor();
-    Program prog = (Program)forrest.visit(fileTree);
 
-    prog.accept(
-      new PrettyPrintVisitor()
-    );
+  /***************************************************************************/
+
+  public static String getSrcFileArg(String[] args) throws Exception{
+    if(args.length < 1)
+      throw new Exception("Argumento faltando: Arquivo de entrada.");
+
+    return args[0];
   }
-  public static ParseTree getTree(File inputFile){
+  public static File getSrcFile(String arg) throws Exception{
+
+      srcFilePath = testingPath + "/" + arg + ".java";
+      File srcFile = new File(srcFilePath);
+
+    if(! srcFile.exists())
+      throw new Exception("Arquivo " + srcFilePath + " não existe.");
+
+
+    return srcFile;
+  }
+  public static void processFile(File inputFile) throws Exception{
+    // Analise Lexica
+    logSectionTitle("ANALISE LEXICA DO ARQUIVO");
+    CommonTokenStream tokens = getTokenStreamFromFile(inputFile);
+    // Analise Sintatica
+    logSectionTitle("ANALISE SINTATICA");
+    ParseTree parseTree = getParseTreeFromTokenStream(tokens);
+    // AST (raiz de uma arvore sintatica, estrutura intermediaria)
+    logSectionTitle("CONSTRUIR AST");
+    AST = getAstFromParseTree(parseTree);
+    // Tabela de Simbolos
+    logSectionTitle("CONSTRUIR SYMBOL TABLE\n [ESCOPOS INTERNOS SEPARADOS POR QUEBRA DE LINHA E DELIMITADOS POR { }]");
+    SYMBs = getSymbolTableFromAST();
+    // Checagem de tipos
+    logSectionTitle("TYPE CHECK");
+    TypeCheckVisitor typeChecker = checkTypes();
+
+    // prettyPrintAst(ast);
+    // prettyPrintTable(symbols);
+  }
+
+  /***************************************************************************/
+
+  public static CommonTokenStream getTokenStreamFromFile(File inputFile){
     String fileContents = "";
     try{
       fileContents = getFileContents(inputFile);
@@ -58,20 +93,70 @@ public class PT_IMSPC{
       )
     );
     CommonTokenStream tokens = new CommonTokenStream(lexLuthor);
-    PT_IMSPCParser parser = new PT_IMSPCParser(tokens);
 
-    ParseTree ctx = parser.goal();
-
-    return ctx;
+    return tokens;
   }
   public static String getFileContents(File file) throws IOException{
     byte[] encoded = encoded = Files.readAllBytes(file.toPath());
 
     return new String(encoded);
   }
+  public static ParseTree getParseTreeFromTokenStream(CommonTokenStream tokens){
+
+    PT_IMSPCParser parser = new PT_IMSPCParser(tokens);
+
+    ParseTree ctx = parser.goal();
+
+    return ctx;
+  }
+  public static Program getAstFromParseTree(ParseTree parseTree){
+    BuildProgramVisitor forrest = new BuildProgramVisitor();
+    Program prog = (Program)forrest.visit(parseTree);
+
+    return prog;
+  }
+  public static SymbolTable getSymbolTableFromAST(){
+    BuildSymbolTableVisitor tableBuilder = new BuildSymbolTableVisitor();
+    tableBuilder.visit(AST);
+    SymbolTable symbolTable = tableBuilder.getSymbolTable();
+
+    return symbolTable;
+  }
+  public static TypeCheckVisitor checkTypes() throws Exception{
+    TypeCheckVisitor typeChecker = new TypeCheckVisitor(SYMBs);
+    typeChecker.visit(AST);
+
+    return typeChecker;
+  }
+  /**************************************************************************/
+
+  public static void prettyPrintAst(Program ast){
+    System.out.println("AST");
+    ast.accept(
+      new PrettyPrintVisitor()
+    );
+  }
+  public static void prettyPrintTable(SymbolTable tb){
+    System.out.println("SYMBOL TABLE");
+    System.out.println(tb.hashtable);
+  }
+  public static void logSectionTitle(String section){
+    System.out.println(
+      "\n\n############################################################\n" +
+      "\n############################################################\n\n" +
+
+        section +
+
+      "\n\n############################################################\n" +
+      "\n############################################################\n\n"
+    );
+  }
+
+  /***************************************************************************/
+
 }
 
-class Visitor extends PT_IMSPCBaseVisitor<Object>{
+class BuildProgramVisitor extends PT_IMSPCBaseVisitor<Object>{
 
 	public Object visitGoal(PT_IMSPCParser.GoalContext ctx) {
 		System.out.println("Visitou goal");

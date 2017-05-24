@@ -19,11 +19,11 @@ public class PT_IMSPCLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
-		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, 
-		T__17=18, T__18=19, T__19=20, T__20=21, T__21=22, T__22=23, T__23=24, 
-		T__24=25, T__25=26, T__26=27, T__27=28, T__28=29, T__29=30, T__30=31, 
-		T__31=32, T__32=33, T__33=34, T__34=35, INTEGER_LITERAL=36, IDENTIFIER=37, 
+		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9,
+		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17,
+		T__17=18, T__18=19, T__19=20, T__20=21, T__21=22, T__22=23, T__23=24,
+		T__24=25, T__25=26, T__26=27, T__27=28, T__28=29, T__29=30, T__30=31,
+		T__31=32, T__32=33, T__33=34, T__34=35, INTEGER_LITERAL=36, IDENTIFIER=37,
 		SPACES=38, COMMENT_LINE=39, COMMENT_BLOCK=40;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
@@ -34,25 +34,25 @@ public class PT_IMSPCLexer extends Lexer {
 	};
 
 	public static final String[] ruleNames = {
-		"T__0", "T__1", "T__2", "T__3", "T__4", "T__5", "T__6", "T__7", "T__8", 
-		"T__9", "T__10", "T__11", "T__12", "T__13", "T__14", "T__15", "T__16", 
-		"T__17", "T__18", "T__19", "T__20", "T__21", "T__22", "T__23", "T__24", 
-		"T__25", "T__26", "T__27", "T__28", "T__29", "T__30", "T__31", "T__32", 
-		"T__33", "T__34", "INTEGER_LITERAL", "IDENTIFIER", "SPACES", "COMMENT_LINE", 
+		"T__0", "T__1", "T__2", "T__3", "T__4", "T__5", "T__6", "T__7", "T__8",
+		"T__9", "T__10", "T__11", "T__12", "T__13", "T__14", "T__15", "T__16",
+		"T__17", "T__18", "T__19", "T__20", "T__21", "T__22", "T__23", "T__24",
+		"T__25", "T__26", "T__27", "T__28", "T__29", "T__30", "T__31", "T__32",
+		"T__33", "T__34", "INTEGER_LITERAL", "IDENTIFIER", "SPACES", "COMMENT_LINE",
 		"COMMENT_BLOCK"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'class'", "'{'", "'public'", "'static'", "'void'", "'main'", "'('", 
-		"'String'", "'['", "']'", "')'", "'}'", "'extends'", "';'", "','", "'return'", 
-		"'int'", "'boolean'", "'if'", "'else'", "'while'", "'System.out.println'", 
-		"'='", "'&&'", "'<'", "'+'", "'-'", "'*'", "'.'", "'length'", "'true'", 
+		null, "'class'", "'{'", "'public'", "'static'", "'void'", "'main'", "'('",
+		"'String'", "'['", "']'", "')'", "'}'", "'extends'", "';'", "','", "'return'",
+		"'int'", "'boolean'", "'if'", "'else'", "'while'", "'System.out.println'",
+		"'='", "'&&'", "'<'", "'+'", "'-'", "'*'", "'.'", "'length'", "'true'",
 		"'false'", "'this'", "'new'", "'!'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, null, null, null, null, null, null, null, null, null, null, 
+		null, null, null, null, null, null, null, null, null, null, null, null,
+		null, null, null, null, null, null, null, null, null, null, null, null,
+		null, null, null, null, null, null, null, null, null, null, null, null,
 		"INTEGER_LITERAL", "IDENTIFIER", "SPACES", "COMMENT_LINE", "COMMENT_BLOCK"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
