@@ -45,10 +45,31 @@ public class TypeCheckVisitor implements TypeVisitor {
 		symbolTable = st;
 	}
 
+	// LINHAS COMENTADAS NAO PRECISAM DE VERIFICACAO DE TIPOS OU SAO FOLHAS ONDE TIPO NAO INTERESSA
+	// RETORNA NULL QUANDO ELEMENTO VISITADO NÃO CONTIVER TIPO
+
+
+	protected  void verifyMatch(Type a, Type b) throws Exception{
+		boolean equals = a.getName() == b.getName();
+		log("verifyMatch: " + a.getName() + ", " + b.getName());
+		if(!equals)
+			throw new Exception("Classes incompatíveis: " + b.getName() + " e " + a.getName());
+	}
+	protected void verifyBool(Type a) throws Exception{
+		log("verifyBool: " + a.getName() + " == " + (a instanceof BooleanType));
+		if(!(a instanceof BooleanType))
+			throw new Exception("Esperado boolean onde foi encontrado " + a.getName());
+	}
+
+
+
+
+
+
 	// MainClass m;
 	// ClassDeclList cl;
-	public Type visit(Program n) {
-		
+	public Type visit(Program n)  throws Exception{
+
 		n.m.accept(this);
 		for (int i = 0; i < n.cl.size(); i++) {
 			n.cl.elementAt(i).accept(this);
@@ -58,9 +79,9 @@ public class TypeCheckVisitor implements TypeVisitor {
 
 	// Identifier i1,i2;
 	// Statement s;
-	public Type visit(MainClass n) {
-		n.i1.accept(this);
-		n.i2.accept(this);
+	public Type visit(MainClass n) throws Exception{
+		// n.i1.accept(this);
+		// n.i2.accept(this);
 		n.s.accept(this);
 		return null;
 	}
@@ -68,8 +89,9 @@ public class TypeCheckVisitor implements TypeVisitor {
 	// Identifier i;
 	// VarDeclList vl;
 	// MethodDeclList ml;
-	public Type visit(ClassDeclSimple n) {
-		n.i.accept(this);
+	public Type visit(ClassDeclSimple n) throws Exception{
+		// n.i.accept(this);
+
 		for (int i = 0; i < n.vl.size(); i++) {
 			n.vl.elementAt(i).accept(this);
 		}
@@ -83,7 +105,7 @@ public class TypeCheckVisitor implements TypeVisitor {
 	// Identifier j;
 	// VarDeclList vl;
 	// MethodDeclList ml;
-	public Type visit(ClassDeclExtends n) {
+	public Type visit(ClassDeclExtends n) throws Exception{
 		n.i.accept(this);
 		n.j.accept(this);
 		for (int i = 0; i < n.vl.size(); i++) {
@@ -97,9 +119,9 @@ public class TypeCheckVisitor implements TypeVisitor {
 
 	// Type t;
 	// Identifier i;
-	public Type visit(VarDecl n) {
-		n.t.accept(this);
-		n.i.accept(this);
+	public Type visit(VarDecl n)  throws Exception{
+		// n.t.accept(this);
+		// n.i.accept(this);
 		return null;
 	}
 
@@ -109,9 +131,13 @@ public class TypeCheckVisitor implements TypeVisitor {
 	// VarDeclList vl;
 	// StatementList sl;
 	// Exp e;
-	public Type visit(MethodDecl n) {
-		n.t.accept(this);
-		n.i.accept(this);
+	public Type visit(MethodDecl n) throws Exception {
+
+		Type methType = n.t.accept(this);
+		Type methRetT = n.e.accept(this);
+
+
+		// n.i.accept(this);
 		for (int i = 0; i < n.fl.size(); i++) {
 			n.fl.elementAt(i).accept(this);
 		}
@@ -121,37 +147,39 @@ public class TypeCheckVisitor implements TypeVisitor {
 		for (int i = 0; i < n.sl.size(); i++) {
 			n.sl.elementAt(i).accept(this);
 		}
-		n.e.accept(this);
+
+		verifyMatch(methType, methRetT);
+
 		return null;
 	}
 
 	// Type t;
 	// Identifier i;
-	public Type visit(Formal n) {
+	public Type visit(Formal n)  throws Exception{
 		n.t.accept(this);
 		n.i.accept(this);
 		return null;
 	}
 
-	public Type visit(IntArrayType n) {
-		return null;
+	public Type visit(IntArrayType n) throws Exception {
+		return n;
 	}
 
-	public Type visit(BooleanType n) {
-		return null;
+	public Type visit(BooleanType n) throws Exception {
+		return n;
 	}
 
-	public Type visit(IntegerType n) {
-		return null;
+	public Type visit(IntegerType n)  throws Exception{
+		return n;
 	}
 
 	// String s;
-	public Type visit(IdentifierType n) {
-		return null;
+	public Type visit(IdentifierType n)  throws Exception{
+		return n;
 	}
 
 	// StatementList sl;
-	public Type visit(Block n) {
+	public Type visit(Block n) throws Exception{
 		for (int i = 0; i < n.sl.size(); i++) {
 			n.sl.elementAt(i).accept(this);
 		}
@@ -160,8 +188,11 @@ public class TypeCheckVisitor implements TypeVisitor {
 
 	// Exp e;
 	// Statement s1,s2;
-	public Type visit(If n) {
-		n.e.accept(this);
+	public Type visit(If n)  throws Exception{
+		Type condition = n.e.accept(this);
+
+		verifyBool(condition);
+
 		n.s1.accept(this);
 		n.s2.accept(this);
 		return null;
@@ -169,21 +200,21 @@ public class TypeCheckVisitor implements TypeVisitor {
 
 	// Exp e;
 	// Statement s;
-	public Type visit(While n) {
+	public Type visit(While n) throws Exception{
 		n.e.accept(this);
 		n.s.accept(this);
 		return null;
 	}
 
 	// Exp e;
-	public Type visit(Print n) {
+	public Type visit(Print n)  throws Exception{
 		n.e.accept(this);
 		return null;
 	}
 
 	// Identifier i;
 	// Exp e;
-	public Type visit(Assign n) {
+	public Type visit(Assign n)  throws Exception{
 		n.i.accept(this);
 		n.e.accept(this);
 		return null;
@@ -191,7 +222,7 @@ public class TypeCheckVisitor implements TypeVisitor {
 
 	// Identifier i;
 	// Exp e1,e2;
-	public Type visit(ArrayAssign n) {
+	public Type visit(ArrayAssign n)  throws Exception{
 		n.i.accept(this);
 		n.e1.accept(this);
 		n.e2.accept(this);
@@ -199,49 +230,49 @@ public class TypeCheckVisitor implements TypeVisitor {
 	}
 
 	// Exp e1,e2;
-	public Type visit(And n) {
+	public Type visit(And n) throws Exception {
 		n.e1.accept(this);
 		n.e2.accept(this);
 		return null;
 	}
 
 	// Exp e1,e2;
-	public Type visit(LessThan n) {
+	public Type visit(LessThan n) throws Exception {
 		n.e1.accept(this);
 		n.e2.accept(this);
 		return null;
 	}
 
 	// Exp e1,e2;
-	public Type visit(Plus n) {
+	public Type visit(Plus n)  throws Exception{
 		n.e1.accept(this);
 		n.e2.accept(this);
 		return null;
 	}
 
 	// Exp e1,e2;
-	public Type visit(Minus n) {
+	public Type visit(Minus n) throws Exception {
 		n.e1.accept(this);
 		n.e2.accept(this);
 		return null;
 	}
 
 	// Exp e1,e2;
-	public Type visit(Times n) {
+	public Type visit(Times n)  throws Exception{
 		n.e1.accept(this);
 		n.e2.accept(this);
 		return null;
 	}
 
 	// Exp e1,e2;
-	public Type visit(ArrayLookup n) {
+	public Type visit(ArrayLookup n) throws Exception {
 		n.e1.accept(this);
 		n.e2.accept(this);
 		return null;
 	}
 
 	// Exp e;
-	public Type visit(ArrayLength n) {
+	public Type visit(ArrayLength n)  throws Exception{
 		n.e.accept(this);
 		return null;
 	}
@@ -249,7 +280,7 @@ public class TypeCheckVisitor implements TypeVisitor {
 	// Exp e;
 	// Identifier i;
 	// ExpList el;
-	public Type visit(Call n) {
+	public Type visit(Call n)  throws Exception{
 		n.e.accept(this);
 		n.i.accept(this);
 		for (int i = 0; i < n.el.size(); i++) {
@@ -259,46 +290,52 @@ public class TypeCheckVisitor implements TypeVisitor {
 	}
 
 	// int i;
-	public Type visit(IntegerLiteral n) {
+	public Type visit(IntegerLiteral n)  throws Exception{
 		return null;
 	}
 
-	public Type visit(True n) {
+	public Type visit(True n)  throws Exception{
 		return null;
 	}
 
-	public Type visit(False n) {
+	public Type visit(False n)  throws Exception{
 		return null;
 	}
 
 	// String s;
-	public Type visit(IdentifierExp n) {
+	public Type visit(IdentifierExp n)  throws Exception{
 		return null;
 	}
 
-	public Type visit(This n) {
+	public Type visit(This n)  throws Exception{
 		return null;
 	}
 
 	// Exp e;
-	public Type visit(NewArray n) {
+	public Type visit(NewArray n) throws Exception {
 		n.e.accept(this);
 		return null;
 	}
 
 	// Identifier i;
-	public Type visit(NewObject n) {
+	public Type visit(NewObject n) throws Exception {
 		return null;
 	}
 
 	// Exp e;
-	public Type visit(Not n) {
+	public Type visit(Not n) throws Exception {
 		n.e.accept(this);
 		return null;
 	}
 
 	// String s;
-	public Type visit(Identifier n) {
+	public Type visit(Identifier n)  throws Exception{
 		return null;
+	}
+
+	protected void log(String msg){
+		System.out.println(
+			"> " + msg
+		);
 	}
 }

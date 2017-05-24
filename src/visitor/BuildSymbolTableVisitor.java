@@ -44,7 +44,7 @@ public class BuildSymbolTableVisitor implements Visitor {
 	// MethodDeclList ml;
 	public void visit(ClassDeclSimple n) {
 		n.i.accept(this);
-
+		System.out.println("\n\nclasse " + n.i.s + "{");
 		// ENTRA NA CLASSE
 		currClass = new Class(n.i.s, null);
 		symbolTable.addClass(currClass);
@@ -55,8 +55,8 @@ public class BuildSymbolTableVisitor implements Visitor {
 		for (int i = 0; i < n.ml.size(); i++) {
 			n.ml.elementAt(i).accept(this);
 		}
-
 		exitClass();
+		System.out.println("} classe " + n.i.s);
 	}
 
 	// Identifier i;
@@ -66,7 +66,7 @@ public class BuildSymbolTableVisitor implements Visitor {
 	public void visit(ClassDeclExtends n) {
 		n.i.accept(this);
 		n.j.accept(this);
-
+		System.out.println("\n\nclasse " + n.i.s + " extends " + n.j.s + "{");
 		// ENTRA NA CLASSE
 		currClass = new Class(n.i.s, n.j.s);
 		symbolTable.addClass(currClass);
@@ -79,11 +79,13 @@ public class BuildSymbolTableVisitor implements Visitor {
 		}
 
 		exitClass();
+		System.out.println("} classe " + n.i.s + " extends " + n.j.s);
 	}
 
 	// Type t;
 	// Identifier i;
 	public void visit(VarDecl n) {
+		System.out.println(n.t.getName() + " " + n.i.s);
 		n.t.accept(this);
 		n.i.accept(this);
 
@@ -113,6 +115,7 @@ public class BuildSymbolTableVisitor implements Visitor {
 		n.i.accept(this);
 
 		// ENTRA NO METODO
+		System.out.println("\nmetodo " + n.t.getName() + " " + n.i.s + "{");
 		currMethod = new Method(n.i.s, n.t);
 		currClass.addMethod(currMethod);
 
@@ -129,6 +132,7 @@ public class BuildSymbolTableVisitor implements Visitor {
 
 		// SAI DO METODO
 		exitMethod();
+		System.out.println("} metodo " + n.t.getName() + " " + n.i.s);
 	}
 	protected void exitMethod(){
 		currMethod = null;

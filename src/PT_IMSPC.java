@@ -58,15 +58,20 @@ public class PT_IMSPC{
   }
   public static void processFile(File inputFile) throws Exception{
     // Analise Lexica
+    logSectionTitle("ANALISE LEXICA DO ARQUIVO");
     CommonTokenStream tokens = getTokenStreamFromFile(inputFile);
     // Analise Sintatica
+    logSectionTitle("ANALISE SINTATICA");
     ParseTree parseTree = getParseTreeFromTokenStream(tokens);
     // AST (raiz de uma arvore sintatica, estrutura intermediaria)
+    logSectionTitle("CONSTRUIR AST");
     AST = getAstFromParseTree(parseTree);
     // Tabela de Simbolos
+    logSectionTitle("CONSTRUIR SYMBOL TABLE\n [ESCOPOS INTERNOS SEPARADOS POR QUEBRA DE LINHA E DELIMITADOS POR { }]");
     SYMBs = getSymbolTableFromAST();
     // Checagem de tipos
-
+    logSectionTitle("TYPE CHECK");
+    TypeCheckVisitor typeChecker = checkTypes();
 
     // prettyPrintAst(ast);
     // prettyPrintTable(symbols);
@@ -117,7 +122,7 @@ public class PT_IMSPC{
 
     return symbolTable;
   }
-  public static TypeCheckVisitor checkTypes(){
+  public static TypeCheckVisitor checkTypes() throws Exception{
     TypeCheckVisitor typeChecker = new TypeCheckVisitor(SYMBs);
     typeChecker.visit(AST);
 
@@ -134,6 +139,17 @@ public class PT_IMSPC{
   public static void prettyPrintTable(SymbolTable tb){
     System.out.println("SYMBOL TABLE");
     System.out.println(tb.hashtable);
+  }
+  public static void logSectionTitle(String section){
+    System.out.println(
+      "\n\n############################################################\n" +
+      "\n############################################################\n\n" +
+
+        section +
+
+      "\n\n############################################################\n" +
+      "\n############################################################\n\n"
+    );
   }
 
   /***************************************************************************/

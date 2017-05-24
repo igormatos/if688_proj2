@@ -6,14 +6,15 @@ public class IdentifierType extends Type {
   public String s;
 
   public IdentifierType(String as) {
-    s=as;
+    super(as);
+    s=as;    
   }
 
   public void accept(Visitor v) {
     v.visit(this);
   }
 
-  public Type accept(TypeVisitor v) {
+   public Type accept(TypeVisitor v) throws Exception  {
     return v.visit(this);
   }
 }
